@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kakera — Turn images into character art</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1 class="logo">
+                    <span class="logo-mark">欠</span>
+                    <span class="logo-text">Kakera</span>
+                </h1>
+                <p class="tagline">Turn images into character art</p>
+            </div>
+            <p class="header-credit">Made with <span class="heart">🫶</span> by <span class="dev-name">reymundokunnn</span></p>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="layout">
+            <!-- Left: Workspace (Upload + Preview side by side) -->
+            <section class="workspace-pane" aria-labelledby="workspace-heading">
+                <h2 id="workspace-heading" class="visually-hidden">Workspace</h2>
+                
+                <!-- Upload Panel -->
+                <div class="upload-panel" aria-labelledby="upload-heading">
+                    <div class="upload-header">
+                        <h3 id="upload-heading" class="panel-title">Upload</h3>
+                        <button class="btn btn--primary btn--generate" id="generateBtn" type="button" disabled>
+                            Generate ASCII
+                        </button>
+                    </div>
+                    
+                    <div class="upload-dropzone" id="uploadDropzone">
+                        <div class="upload-area" id="uploadArea" role="button" tabindex="0" aria-label="Upload image area">
+                            <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" hidden>
+                            <div class="upload-content">
+                                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                <p class="upload-text">Drag & drop image here</p>
+                                <p class="upload-hint">or click to browse</p>
+                                <p class="upload-formats">PNG, JPG, WEBP</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="image-preview" id="imagePreview" hidden>
+                        <img id="previewImage" alt="Uploaded image preview">
+                        <div class="image-details" id="imageDetails"></div>
+                        <button class="btn btn--ghost btn--small" id="removeImage" type="button" aria-label="Remove image">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preview Panel -->
+                <div class="preview-panel" aria-labelledby="preview-heading">
+                    <div class="preview-header">
+                        <h3 id="preview-heading" class="panel-title">Preview</h3>
+                    </div>
+                    <div class="preview-container" id="previewContainer">
+                        <pre class="ascii-preview" id="asciiPreview" aria-label="ASCII art preview"></pre>
+                        <div class="preview-placeholder" id="previewPlaceholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <p>Adjust settings and click Generate</p>
+                        </div>
+                    </div>
+                    <div class="action-bar">
+                        <div class="action-group">
+                            <button class="btn btn--secondary btn--small" id="copyBtn" type="button" disabled aria-label="Copy as text">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <span>Copy</span>
+                            </button>
+                        </div>
+                        <div class="action-group zoom-controls" id="zoomControls" hidden>
+                            <button class="btn btn--secondary btn--small" id="zoomOut" type="button" aria-label="Zoom out">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                            </button>
+                            <span class="zoom-level" id="zoomLevel">100%</span>
+                            <button class="btn btn--secondary btn--small" id="zoomIn" type="button" aria-label="Zoom in">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                            </button>
+                            <button class="btn btn--secondary btn--small" id="zoomReset" type="button" aria-label="Reset zoom">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </button>
+                        </div>
+                        <div class="action-group">
+                            <div class="export-dropdown">
+                                <button class="btn btn--primary btn--small" id="exportBtn" type="button" disabled aria-label="Export options" aria-haspopup="true" aria-expanded="false">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    <span>Export</span>
+                                </button>
+                                <div class="export-menu" id="exportMenu" role="menu" hidden>
+                                    <button class="export-option" role="menuitem" data-format="png">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                        Export as PNG
+                                    </button>
+                                    <button class="export-option" role="menuitem" data-format="jpg">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                        Export as JPG
+                                    </button>
+                                    <button class="export-option" role="menuitem" data-format="webp">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                                        Export as WEBP
+                                    </button>
+                                    <button class="export-option" role="menuitem" data-format="txt">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                        Export as TXT
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: Settings Panel -->
+            <aside class="settings-pane" aria-labelledby="settings-heading">
+                <div class="settings-header">
+                    <h2 id="settings-heading" class="settings-title">Settings</h2>
+                </div>
+                
+                <div class="settings-content">
+                    <section class="settings-section">
+                        <h3 class="section-title">Output</h3>
+                        
+                        <div class="setting">
+                            <label class="setting-label" for="asciiWidth">Width</label>
+                            <div class="setting-control">
+                                <input type="range" id="asciiWidth" min="40" max="300" value="120" step="1">
+                                <output class="setting-value" id="asciiWidthValue">120</output>
+                            </div>
+                            <p class="setting-hint">Characters horizontally</p>
+                        </div>
+
+                        <div class="setting">
+                            <label class="setting-label" for="charDensity">Density</label>
+                            <div class="setting-control">
+                                <input type="range" id="charDensity" min="0.5" max="2" value="1" step="0.1">
+                                <output class="setting-value" id="charDensityValue">1.0</output>
+                            </div>
+                            <p class="setting-hint">Aspect ratio compensation</p>
+                        </div>
+
+                        <div class="setting">
+                            <label class="setting-label" for="fontSize">Font Size</label>
+                            <div class="setting-control">
+                                <input type="range" id="fontSize" min="4" max="24" value="8" step="1">
+                                <output class="setting-value" id="fontSizeValue">8px</output>
+                            </div>
+                            <p class="setting-hint">Export font size in pixels</p>
+                        </div>
+                    </section>
+
+                    <section class="settings-section">
+                        <h3 class="section-title">Image Processing</h3>
+                        
+                        <div class="setting">
+                            <label class="setting-label" for="brightness">Brightness</label>
+                            <div class="setting-control">
+                                <input type="range" id="brightness" min="-100" max="100" value="0" step="1">
+                                <output class="setting-value" id="brightnessValue">0</output>
+                            </div>
+                            <p class="setting-hint">Adjust image brightness</p>
+                        </div>
+
+                        <div class="setting">
+                            <label class="setting-label" for="contrast">Contrast</label>
+                            <div class="setting-control">
+                                <input type="range" id="contrast" min="0" max="200" value="100" step="1">
+                                <output class="setting-value" id="contrastValue">100%</output>
+                            </div>
+                            <p class="setting-hint">Adjust image contrast</p>
+                        </div>
+
+                        <div class="setting">
+                            <label class="setting-label" for="gamma">Gamma</label>
+                            <div class="setting-control">
+                                <input type="range" id="gamma" min="10" max="300" value="100" step="1">
+                                <output class="setting-value" id="gammaValue">1.0</output>
+                            </div>
+                            <p class="setting-hint">Gamma correction (100 = 1.0)</p>
+                        </div>
+
+                        <div class="setting setting--checkbox">
+                            <label class="setting-label" for="invertColors">Invert</label>
+                            <div class="setting-control">
+                                <input type="checkbox" id="invertColors">
+                            </div>
+                            <p class="setting-hint">Invert image colors</p>
+                        </div>
+
+                        <div class="setting">
+                            <label class="setting-label" for="threshold">Threshold</label>
+                            <div class="setting-control">
+                                <input type="range" id="threshold" min="0" max="255" value="128" step="1">
+                                <output class="setting-value" id="thresholdValue">128</output>
+                            </div>
+                            <p class="setting-hint">Posterize threshold (0-255)</p>
+                        </div>
+
+                        <div class="setting">
+                            <label class="setting-label" for="dithering">Dithering</label>
+                            <select id="dithering" class="select">
+                                <option value="none">None</option>
+                                <option value="floyd-steinberg">Floyd-Steinberg</option>
+                                <option value="ordered">Ordered (Bayer)</option>
+                                <option value="atkinson">Atkinson</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <section class="settings-section">
+                        <h3 class="section-title">Color</h3>
+                        
+                        <div class="setting">
+                            <label class="setting-label" for="colorMode">Mode</label>
+                            <select id="colorMode" class="select">
+                                <option value="color">Original Colors</option>
+                                <option value="monochrome">Monochrome</option>
+                                <option value="custom">Custom Tint</option>
+                            </select>
+                        </div>
+
+                        <div class="setting" id="textColorSetting" hidden>
+                            <label class="setting-label" for="textColor">Text Color</label>
+                            <div class="setting-control setting-control--color">
+                                <input type="color" id="textColor" value="#00ff00">
+                                <span class="color-value" id="textColorValue">#00ff00</span>
+                            </div>
+                        </div>
+
+                        <div class="setting">
+                            <label class="setting-label" for="backgroundColor">Background</label>
+                            <div class="setting-control setting-control--color">
+                                <input type="color" id="backgroundColor" value="#1a1a2e">
+                                <span class="color-value" id="bgColorValue">#1a1a2e</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-section">
+                        <h3 class="section-title">Character Set</h3>
+                        
+                        <div class="setting">
+                            <label class="setting-label" for="charRamp">Ramp</label>
+                            <select id="charRamp" class="select">
+                                <option value="standard">Standard (@%#*+=-:. )</option>
+                                <option value="blocks">Blocks (█▓▒░ )</option>
+                                <option value="minimal">Minimal (#+-:. )</option>
+                                <option value="dense">Dense (70 chars)</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+
+                        <div class="setting" id="customRampSetting" hidden>
+                            <label class="setting-label" for="customRamp">Custom Ramp</label>
+                            <input type="text" id="customRamp" class="input" placeholder="Enter characters dark to light" maxlength="100" aria-describedby="customRampHint">
+                            <p class="setting-hint" id="customRampHint">Characters from darkest to lightest (e.g. @%#*+=-:. )</p>
+                        </div>
+                    </section>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Kakera — Built with vanilla HTML, CSS & JavaScript</p>
+    </footer>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
