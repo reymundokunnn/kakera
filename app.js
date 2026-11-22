@@ -417,7 +417,7 @@ function generate() {
  * Render ASCII preview
  */
 function renderPreview(asciiData) {
-    const { rows, colors, colorMode, backgroundColor } = asciiData;
+    const { rows, colors, colorMode, backgroundColor, fontSize, charHeight, charWidth } = asciiData;
     
     // Reset zoom
     state.zoomLevel = 1;
@@ -439,6 +439,14 @@ function renderPreview(asciiData) {
         elements.asciiPreviewWrapper.appendChild(elements.asciiPreview);
     }
     
+    // Set font size and line height on the preview element to match export metrics
+    // Use the fontSize from settings (stored in asciiData) and charHeight for line-height
+    const previewFontSize = fontSize || 8;
+    const previewLineHeight = charHeight || (previewFontSize * 1.05);
+    
+    elements.asciiPreview.style.fontSize = `${previewFontSize}px`;
+    elements.asciiPreview.style.lineHeight = `${previewLineHeight}px`;
+    
     // Create document fragment for performance
     const fragment = document.createDocumentFragment();
     
@@ -446,13 +454,17 @@ function renderPreview(asciiData) {
         const line = document.createElement('div');
         line.style.display = 'block';
         line.style.whiteSpace = 'pre';
-        line.style.lineHeight = '1.05';
+        line.style.lineHeight = `${previewLineHeight}px`;
+        line.style.height = `${previewLineHeight}px`;
         
         const rowColors = colors[rowIndex];
         
         row.split('').forEach((char, charIndex) => {
             const span = document.createElement('span');
             span.textContent = char === ' ' ? '\u00A0' : char; // Use NBSP for spaces to maintain width
+            span.style.display = 'inline-block';
+            span.style.width = `${charWidth || previewFontSize}px`;
+            span.style.textAlign = 'center';
             
             if (colorMode === 'color') {
                 span.style.color = rowColors[charIndex];

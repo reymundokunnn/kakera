@@ -397,7 +397,6 @@ body {
     margin: 0;
     padding: 0;
     font-family: var(--font-mono);
-    font-size: 0.525rem;
     line-height: 1.05;
     letter-spacing: 0;
     white-space: pre;
@@ -935,7 +934,6 @@ body {
     }
     
     .ascii-preview {
-        font-size: 0.45rem;
         line-height: 1.05;
         padding: 1rem;
     }

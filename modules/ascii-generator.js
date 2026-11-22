@@ -378,15 +378,15 @@ export function generateAscii(source, options) {
         colors.push(rowColors);
     }
     
-    return {
+return {
         rows,
         colors,
         width: imgWidth,
         height: imgHeight,
         backgroundColor,
-        charWidth: CHAR_METRICS.width,
-        charHeight: CHAR_METRICS.height,
-        fontSize // Store for export
+        charWidth: fontSize,
+        charHeight: fontSize * 1.05,
+        fontSize
     };
 }
 
